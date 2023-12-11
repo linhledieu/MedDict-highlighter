@@ -1,8 +1,8 @@
-const mediumHighlighter = document.createElement("medium-highlighter");
-document.body.appendChild(mediumHighlighter);
+const meddictHighlighter = document.createElement("meddict-highlighter");
+document.body.appendChild(meddictHighlighter);
 
 const setMarkerPosition = (markerPosition) =>
-  mediumHighlighter.setAttribute(
+  meddictHighlighter.setAttribute(
     "markerPosition",
     JSON.stringify(markerPosition)
   );

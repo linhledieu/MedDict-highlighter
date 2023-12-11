@@ -1,9 +1,3 @@
-## Medium article
-
-Repository for medium article [Build the Medium Text-Highlighter as a Chrome Extension with Web Components](https://medium.com/codex/how-to-build-the-medium-text-highlighter-as-a-chrome-extension-with-web-components-b3feccddcd01).
-
-## Installation
-
 ### Installation of packages
 
 Install the dependencies:

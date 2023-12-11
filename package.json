@@ -1,13 +1,12 @@
 {
-  "name": "medium-highlighter",
+  "name": "meddict-highlighter",
   "version": "1.0.0",
   "description": "",
-  "main": "medium-highlighter.js",
+  "main": "highlighter.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Marius Bongarts",
   "license": "ISC",
   "dependencies": {
     "@webcomponents/custom-elements": "^1.4.3"

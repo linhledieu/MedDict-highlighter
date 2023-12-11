@@ -1,5 +1,5 @@
 {
-  "name": "Medium Highlighter",
+  "name": "MedDict Highlighter",
   "version": "1.0.0",
   "manifest_version": 3,
   "content_scripts": [
@@ -7,7 +7,7 @@
       "matches": ["<all_urls>"],
       "js": [
         "node_modules/@webcomponents/custom-elements/custom-elements.min.js",
-        "medium-highlighter.js",
+        "highlighter.js",
         "content.js"
       ]
     }
