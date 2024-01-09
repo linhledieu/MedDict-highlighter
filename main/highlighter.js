@@ -8,73 +8,70 @@ class MedDictHighlighter extends HTMLElement {
     this.render();
   }
 
+  // Getter for marker position attribute
   get markerPosition() {
     return JSON.parse(this.getAttribute("markerPosition") || "{}");
   }
 
+  // Getter for the style element in the shadow DOM
   get styleElement() {
     return this.shadowRoot.querySelector("style");
   }
 
+  // Getter for the highlight template in the shadow DOM
   get highlightTemplate() {
     return this.shadowRoot.getElementById("highlightTemplate");
   }
 
+  // Observed attributes for the custom element
   static get observedAttributes() {
     return ["markerPosition"];
   }
 
+  // Method to render the element's content
   render() {
     this.attachShadow({ mode: "open" });
 
-    // Create a link element for FontAwesome and append it to shadowRoot
-    const faLink = document.createElement('link');
-    faLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
-    faLink.rel = 'stylesheet';
-    this.shadowRoot.appendChild(faLink);
-
-    // Create and append the style element
+    // Append style element to shadowRoot
     const style = document.createElement("style");
     style.textContent = styled({});
     this.shadowRoot.appendChild(style);
 
-    // Append the template HTML
+    // Append the template HTML to shadowRoot
     this.shadowRoot.innerHTML += template;
 
-    // Add event listener
-    this.shadowRoot
-      .getElementById("meddictHighlighter")
+    // Add event listener for highlight selection
+    this.shadowRoot.getElementById("meddictHighlighter")
       .addEventListener("click", () => this.highlightSelection());
   }
 
-
+  // Callback for attribute changes
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === "markerPosition") {
       this.styleElement.textContent = styled(this.markerPosition);
     }
   }
 
+  // Method to highlight a text range
   highlightRange(range) {
-    const clone =
-      this.highlightTemplate.cloneNode(true).content.firstElementChild;
+    const clone = this.highlightTemplate.cloneNode(true).content.firstElementChild;
     clone.appendChild(range.extractContents());
     range.insertNode(clone);
   }
 
+  // Method to remove all highlights
   removeAllHighlights() {
     const highlights = this.shadowRoot.querySelectorAll('.highlight');
     highlights.forEach(highlight => {
-      if (highlight.parentNode) {
-        // Remove the empty highlight element and restore the original background color
-        const parent = highlight.parentNode;
-        while (highlight.firstChild) {
-          parent.insertBefore(highlight.firstChild, highlight);
-        }
-        parent.removeChild(highlight);
+      const parent = highlight.parentNode;
+      while (highlight.firstChild) {
+        parent.insertBefore(highlight.firstChild, highlight);
       }
+      parent.removeChild(highlight);
     });
   }
 
+  // Method to create the popup box
   createPopupBox(word, meanings, imageUrl, wordFound = true) {
     // Create the container for the pop-up box
     const popupBox = document.createElement('div');
@@ -152,6 +149,7 @@ class MedDictHighlighter extends HTMLElement {
     return { popupBox, soundButton };
   }
 
+  // Method to show the popup box
   showPopupBox(range, word, meanings, imageUrl) {
     // Remove any existing pop-up box
     const existingPopup = this.shadowRoot.querySelector('.popup-box');
@@ -192,6 +190,7 @@ class MedDictHighlighter extends HTMLElement {
     this.removeAllHighlights();
   }
 
+  // Method to find a word in API data
   findWordInData(word, data) {
     for (let item of data) {
       if (item.en.toLowerCase() === word.toLowerCase() || item.vn.toLowerCase() === word.toLowerCase()) {
@@ -201,6 +200,7 @@ class MedDictHighlighter extends HTMLElement {
     return "Not Found";
   }
 
+  // Method to handle the highlight selection
   highlightSelection() {
     const userSelection = window.getSelection();
     for (let i = 0; i < userSelection.rangeCount; i++) {
