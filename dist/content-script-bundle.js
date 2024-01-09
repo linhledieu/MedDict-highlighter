@@ -159,7 +159,7 @@ __webpack_require__.r(__webpack_exports__);
 
 const template = `
 <template id="highlightTemplate">
-  <span class="highlight" style="background-color: rgb(213, 234, 255); display: inline"></span>
+  <span class="highlight" style="background-color: transparent; display: inline"></span>
 </template>
 <button id="meddictHighlighter" style="width: 40px; height: 40px;">
   <img class="text-marker" src="${chrome.runtime.getURL('images/vinuni-icon.png')}" alt="Highlight Icon" style="width: 30px; height: 30px;" />
@@ -314,12 +314,12 @@ class MedDictHighlighter extends HTMLElement {
     }
   }
 
-  // Method to highlight a text range
-  highlightRange(range) {
-    const clone = this.highlightTemplate.cloneNode(true).content.firstElementChild;
-    clone.appendChild(range.extractContents());
-    range.insertNode(clone);
-  }
+  // // Method to highlight a text range
+  // highlightRange(range) {
+  //   const clone = this.highlightTemplate.cloneNode(true).content.firstElementChild;
+  //   clone.appendChild(range.extractContents());
+  //   range.insertNode(clone);
+  // }
 
   // Method to remove all highlights
   removeAllHighlights() {
@@ -468,7 +468,8 @@ class MedDictHighlighter extends HTMLElement {
     const userSelection = window.getSelection();
     for (let i = 0; i < userSelection.rangeCount; i++) {
       const range = userSelection.getRangeAt(i);
-      this.highlightRange(range);
+      // this.highlightRange(range);
+
       const search_word = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.lowerCase)(range.toString()).trim();
       let language = 'en';
       let baseUrl = `https://api.meddict-vinuni.com/words?lang=${language}&pattern=`;

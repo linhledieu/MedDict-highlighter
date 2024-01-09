@@ -52,12 +52,12 @@ class MedDictHighlighter extends HTMLElement {
     }
   }
 
-  // Method to highlight a text range
-  highlightRange(range) {
-    const clone = this.highlightTemplate.cloneNode(true).content.firstElementChild;
-    clone.appendChild(range.extractContents());
-    range.insertNode(clone);
-  }
+  // // Method to highlight a text range
+  // highlightRange(range) {
+  //   const clone = this.highlightTemplate.cloneNode(true).content.firstElementChild;
+  //   clone.appendChild(range.extractContents());
+  //   range.insertNode(clone);
+  // }
 
   // Method to remove all highlights
   removeAllHighlights() {
@@ -205,7 +205,7 @@ class MedDictHighlighter extends HTMLElement {
     const userSelection = window.getSelection();
     for (let i = 0; i < userSelection.rangeCount; i++) {
       const range = userSelection.getRangeAt(i);
-      this.highlightRange(range);
+      // this.highlightRange(range);
 
       const search_word = lowerCase(range.toString()).trim();
       let language = 'en';
