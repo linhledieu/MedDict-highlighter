@@ -263,6 +263,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+// list all Vietnamese unicode unique characters
+const VIETNAMESE_CHARACTERS = ['à', 'á', 'â', 'ã', 'è', 'é', 'ê', 'ì', 'í', 'ò', 'ó', 'ô', 'õ', 'ù', 'ú', 'ý', 'ă', 'đ', 'ĩ', 'ũ', 'ơ', 'ư', 'ạ', 'ả', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ', 'ẹ', 'ẻ', 'ẽ', 'ế', 'ề', 'ể', 'ễ', 'ệ', 'ỉ', 'ị', 'ọ', 'ỏ', 'ố', 'ồ', 'ổ', 'ỗ', 'ộ', 'ớ', 'ờ', 'ở', 'ỡ', 'ợ', 'ụ', 'ủ', 'ứ', 'ừ', 'ử', 'ữ', 'ự', 'ỳ', 'ỵ', 'ỷ', 'ỹ'];
+const SEARCH_URL = 'https://api.meddict-vinuni.com/words?lang={0}&pattern={1}';
+const formatString = (template, ...args) => {
+  return template.replace(/{([0-9]+)}/g, function (match, index) {
+    return typeof args[index] === 'undefined' ? match : args[index];
+  });
+};
 class MedDictHighlighter extends HTMLElement {
   constructor() {
     super();
@@ -287,6 +296,15 @@ class MedDictHighlighter extends HTMLElement {
   // Observed attributes for the custom element
   static get observedAttributes() {
     return ["markerPosition"];
+  }
+  get_language(word) {
+    // check if the word contains any Vietnamese character
+    for (let i = 0; i < word.length; i++) {
+      if (VIETNAMESE_CHARACTERS.includes(word[i])) {
+        return 'vn';
+      }
+    }
+    return 'en';
   }
 
   // Method to render the element's content
@@ -471,16 +489,12 @@ class MedDictHighlighter extends HTMLElement {
       // this.highlightRange(range);
 
       const search_word = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.lowerCase)(range.toString()).trim();
-      let language = 'en';
-      let baseUrl = `https://api.meddict-vinuni.com/words?lang=${language}&pattern=`;
-      let englishUrl = `${baseUrl}${search_word}`;
-      fetch(englishUrl).then(response => response.json()).then(data => {
+      let language = this.get_language(search_word);
+      let url = encodeURI(`https://api.meddict-vinuni.com/words?lang=${language}&pattern=${search_word}`);
+      console.log(url);
+      // let englishUrl = `${baseUrl}${search_word}`;
+      fetch(url).then(response => response.json()).then(data => {
         let filteredData = this.findWordInData(search_word, data);
-        if (filteredData === "Not Found") {
-          language = 'vn';
-          let vietnameseUrl = encodeURI(`${baseUrl}${search_word}`);
-          return fetch(vietnameseUrl).then(response => response.json()).then(vnData => this.findWordInData(search_word, vnData));
-        }
         return filteredData;
       }).then(data => {
         if (data === "Not Found" || data.length === 0) {
@@ -493,7 +507,8 @@ class MedDictHighlighter extends HTMLElement {
 
         // If the word is found
         data = data[0];
-        const meanings = [data["vn"] || data["en"]];
+        const meanings = [language === "en" ? data.vn : data.en];
+        console.log(meanings);
         const imgID = data["id"];
         let imageUrl = `https://api.meddict-vinuni.com/words/illustration/${imgID}`;
         const soundButton = this.showPopupBox(range, search_word, meanings, imageUrl);
