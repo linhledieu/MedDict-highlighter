@@ -469,7 +469,7 @@ class MedDictHighlighter extends HTMLElement {
     for (let i = 0; i < userSelection.rangeCount; i++) {
       const range = userSelection.getRangeAt(i);
       this.highlightRange(range);
-      const search_word = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.lowerCase)(range.toString()).trim().replace(/[^a-zA-Z0-9 ]/g, '');
+      const search_word = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.lowerCase)(range.toString()).trim();
       let language = 'en';
       let baseUrl = `https://api.meddict-vinuni.com/words?lang=${language}&pattern=`;
       let englishUrl = `${baseUrl}${search_word}`;
