@@ -38,7 +38,7 @@ class MedDictHighlighter extends HTMLElement {
     return ["markerPosition"];
   }
 
-  get_language(word){
+  get_language(word) {
     // check if the word contains any Vietnamese character
     for (let i = 0; i < word.length; i++) {
       if (VIETNAMESE_CHARACTERS.includes(word[i])) {
@@ -46,6 +46,56 @@ class MedDictHighlighter extends HTMLElement {
       }
     }
     return 'en';
+  }
+
+  // Method to preprocess English words
+  preprocessWord(word) {
+    if (this.get_language(word) !== 'en') {
+      return word; // Return the original word if it's not English
+    }
+
+    // Remove special characters while retaining spaces between words, and apostrophes
+    word = word.replace(/[^a-zA-Z0-9'\s]+|(?<=\s)'|'(?=\s)/g, "");
+
+
+    // Remove 'ing' from verbs (longer suffixes first)
+    if (word.endsWith('ing') && word.length > 4) {
+      let base = word.slice(0, -3);
+
+      // Check if the base ends in a single consonant preceded by a single vowel
+      // and the base is not just a single vowel and consonant (to avoid cases like 'at' in 'eating')
+      if (/[aeiou][b-df-hj-np-tv-z]$/i.test(base) && base.length > 2) {
+        base = base.slice(0, -1); // Remove the last consonant (e.g., running -> runn -> run)
+      }
+      return base;
+    }
+
+    // Remove 'ed' from verbs
+    else if (word.endsWith('ed') && word.length > 3) {
+      let base = word.slice(0, -2);
+      // Check if the base ends in a single consonant preceded by a single vowel
+      if (/[aeiou][b-df-hj-np-tv-z]$/i.test(base) && base.length > 2) {
+        base = base.slice(0, -1);
+      }
+      return base;
+    }
+
+    // Remove 'es' and check if the preceding character is not 's' or 'x'
+    else if (word.endsWith('es') && !/(s|x)es$/.test(word) && word.length > 3) {
+      // Special case for words like 'diseases' where only the last 's' should be removed
+      if (/[aeiou]s$/.test(word)) {
+        word = word.slice(0, -1);
+      } else {
+        word = word.slice(0, -2);
+      }
+    }
+
+    // Remove trailing 's' if it's not preceded by a vowel
+    else if (word.endsWith('s') && !/[aeiou]s$/.test(word) && word.length > 2) {
+      word = word.slice(0, -1);
+    }
+
+    return word;
   }
 
   // Method to render the element's content
@@ -92,82 +142,93 @@ class MedDictHighlighter extends HTMLElement {
   }
 
   // Method to create the popup box
-  createPopupBox(word, meanings, imageUrl, wordFound = true) {
-    // Create the container for the pop-up box
-    const popupBox = document.createElement('div');
-    popupBox.classList.add('popup-box');
+// Method to create the popup box
+createPopupBox(word, meanings, imageUrl, wordFound = true) {
+  // Create the container for the pop-up box
+  const popupBox = document.createElement('div');
+  popupBox.classList.add('popup-box');
 
-    // Header section with word and icon
-    const headerSection = document.createElement('div');
-    headerSection.classList.add('header-section');
+  // Header section with word and icon
+  const headerSection = document.createElement('div');
+  headerSection.classList.add('header-section');
 
-    const wordHeader = document.createElement('h1');
-    wordHeader.textContent = word;
-    headerSection.appendChild(wordHeader);
+  const wordHeader = document.createElement('h1');
+  wordHeader.textContent = word;
+  headerSection.appendChild(wordHeader);
 
-    // Create the button element
-    const soundButton = document.createElement('button');
-    soundButton.className = 'sound-button'; // Apply the .sound-button class for styling
+  // Create the button element for sound
+  const soundButton = document.createElement('button');
+  soundButton.className = 'sound-button'; // Apply the .sound-button class for styling
 
-    // Assuming that 'images/sound.png' is the path within your extension's directory
-    const iconUrl = chrome.runtime.getURL('images/sound.png');
+  // Assuming that 'images/sound.png' is the path within your extension's directory
+  const iconUrl = chrome.runtime.getURL('images/sound.png');
 
-    // Instead, create an img element for the icon and append it to the button
-    const soundIcon = document.createElement('img');
-    soundIcon.src = iconUrl; // Set the image source
-    soundIcon.alt = 'Sound icon'; // Set alternative text for the image
-    soundIcon.className = 'sound-icon'; // Use .sound-icon class for styling
+  // Create an img element for the icon and append it to the button
+  const soundIcon = document.createElement('img');
+  soundIcon.src = iconUrl; // Set the image source
+  soundIcon.alt = 'Sound icon'; // Set alternative text for the image
+  soundIcon.className = 'sound-icon'; // Use .sound-icon class for styling
 
-    // Append the image icon to the button
-    soundButton.appendChild(soundIcon);
+  // Append the image icon to the button
+  soundButton.appendChild(soundIcon);
 
-    // Append the button to the header section
-    headerSection.appendChild(soundButton);
+  // Append the sound button to the header section
+  headerSection.appendChild(soundButton);
 
-    // Append the button to the header section
-    headerSection.appendChild(soundButton);
+  // Append the header section to the popup box
+  popupBox.appendChild(headerSection);
 
-    // Create a style element
-    const styleElement = document.createElement('style');
-    styleElement.textContent = styled({}); // Get styles from styles.js
+  // Add the image for meaning illustration
+  const image = new Image();
+  image.src = imageUrl;
+  image.alt = 'Meaning illustration';
+  image.classList.add('meaning-image');
+  popupBox.appendChild(image);
 
-    // Append the style element to the document head
-    document.head.appendChild(styleElement);
-    popupBox.appendChild(headerSection);
+  // Add the meanings list
+  const meaningsList = document.createElement('ol');
+  meaningsList.classList.add('meanings-list');
+  meanings.forEach(meaning => {
+    const listItem = document.createElement('li');
+    listItem.textContent = meaning;
+    meaningsList.appendChild(listItem);
+  });
+  popupBox.appendChild(meaningsList);
 
-    // Add the image
-    const image = new Image();
-    image.src = imageUrl;
-    image.alt = 'Meaning illustration';
-    image.classList.add('meaning-image');
-    popupBox.appendChild(image);
+  // Buttons container
+  const buttonsContainer = document.createElement('div');
+  buttonsContainer.style.display = 'flex'; // Ensure buttons are in-line
 
-    // Add the meanings list
-    const meaningsList = document.createElement('ol');
-    meaningsList.classList.add('meanings-list');
-    meanings.forEach(meaning => {
-      const listItem = document.createElement('li');
-      listItem.textContent = meaning;
-      meaningsList.appendChild(listItem);
-    });
-    popupBox.appendChild(meaningsList);
+  // Add the link button for MedDict
+  const linkButton = document.createElement('a');
+  linkButton.href = 'https://meddict-vinuni.com/';
+  linkButton.textContent = 'MedDict';
+  linkButton.target = '_blank';
+  linkButton.classList.add('popup-box-link');
+  buttonsContainer.appendChild(linkButton);
 
-    // Add the link button
-    const linkButton = document.createElement('a');
-    linkButton.href = 'https://meddict-vinuni.com/';
-    linkButton.textContent = 'Link to MedDict';
-    linkButton.target = '_blank';
-    linkButton.classList.add('popup-box-link');
-    popupBox.appendChild(linkButton);
+  // Add the Wikipedia/Google search button
+  const searchButton = document.createElement('button');
+  searchButton.textContent = 'Search';
+  searchButton.classList.add('popup-box-link', 'search-button');  // Reuse the same class for similar styling
+  searchButton.onclick = () => {
+    const wikiUrl = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(word)}`;
+    const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(word)}`;
+    window.open(wikiUrl, '_blank'); // Directly open Wikipedia search
+  };
+  buttonsContainer.appendChild(searchButton);
 
-    // Adjust visibility based on wordFound
-    if (!wordFound) {
-      soundButton.style.display = 'none'; // Hide sound button
-      imageUrl = chrome.runtime.getURL('images/404.jpg'); // Set default not found image
-      meanings = ['If you want to contribute this word to our website, please click the link.']; // Default message
-    }
-    return { popupBox, soundButton };
+  // Append buttons container to popup box
+  popupBox.appendChild(buttonsContainer);
+
+  // Adjust visibility based on wordFound
+  if (!wordFound) {
+    soundButton.style.display = 'none'; // Hide sound button
+    imageUrl = chrome.runtime.getURL('images/404.png'); // Set default not found image
   }
+
+  return { popupBox, soundButton };
+}
 
   // Method to show the popup box
   showPopupBox(range, word, meanings, imageUrl) {
@@ -227,10 +288,12 @@ class MedDictHighlighter extends HTMLElement {
       const range = userSelection.getRangeAt(i);
       // this.highlightRange(range);
 
-      const search_word = lowerCase(range.toString()).trim();
-      let language = this.get_language(search_word);    
+      let search_word = lowerCase(range.toString()).trim();
+      let language = this.get_language(search_word);
+      search_word = this.preprocessWord(search_word);
       let url = encodeURI(`https://api.meddict-vinuni.com/words?lang=${language}&pattern=${search_word}`);
       console.log(url)
+      console.log(search_word)
       // let englishUrl = `${baseUrl}${search_word}`;
       fetch(url)
         .then(response => response.json())
@@ -242,7 +305,7 @@ class MedDictHighlighter extends HTMLElement {
           if (data === "Not Found" || data.length === 0) {
             // Word not found or false positive
             const meanings = ['If you want to contribute this word to our website, please click the link.'];
-            const imageURL = chrome.runtime.getURL('images/404.jpg');
+            const imageURL = chrome.runtime.getURL('images/404.png');
             const soundButton = this.showPopupBox(range, search_word, meanings, imageURL, false);
             return;
           }
@@ -252,8 +315,10 @@ class MedDictHighlighter extends HTMLElement {
           const meanings = [(language === "en" ? data.vn : data.en)];
           console.log(meanings)
           const imgID = data["id"];
+          const dictWord = data[language]
+          console.log(dictWord)
           let imageUrl = `https://api.meddict-vinuni.com/words/illustration/${imgID}`;
-          const soundButton = this.showPopupBox(range, search_word, meanings, imageUrl);
+          const soundButton = this.showPopupBox(range, dictWord, meanings, imageUrl);
           soundButton.addEventListener('click', () => {
             const audio = new Audio(`https://api.meddict-vinuni.com/words/sound/${language}/${imgID}`);
             audio.play().catch(error => console.error('Error playing the sound:', error));

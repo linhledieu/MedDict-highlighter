@@ -2,14 +2,13 @@
   "name": "MedDict Highlighter",
   "version": "1.0.0",
   "manifest_version": 3,
-  "background": {"type": "module" },
+  "background": { "type": "module" },
   "web_accessible_resources": [
     {
-      "resources": ["dist/dynamic-module.js", "images/vinuni-icon.png", "images/sound.png", "images/404.jpg"],
+      "resources": ["dist/dynamic-module.js", "images/vinuni-icon.png", "images/sound.png", "images/404.png", "images/icon128.png", "images/icon48.png", "images/icon16.png"],
       "matches": ["<all_urls>"]
     }
-  ],  
-  
+  ],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -17,12 +16,12 @@
         "node_modules/@webcomponents/custom-elements/custom-elements.min.js",
         "dist/content-script-bundle.js",
         "main/content.js"
-
-        
       ]
     }
-  ]
+  ],
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  }
 }
-
-
-
