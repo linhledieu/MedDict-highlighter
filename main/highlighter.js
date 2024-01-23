@@ -142,7 +142,6 @@ class MedDictHighlighter extends HTMLElement {
   }
 
   // Method to create the popup box
-  // Method to create the popup box
   createPopupBox(word, meanings, imageUrl, wordFound = true) {
     // Create the container for the pop-up box
     const popupBox = document.createElement('div');
@@ -199,7 +198,7 @@ class MedDictHighlighter extends HTMLElement {
     const buttonsContainer = document.createElement('div');
     buttonsContainer.style.display = 'flex'; // Ensure buttons are in-line
 
-    // Modify the linkButton for Google search
+    //linkButton for Google search
     const linkButton = document.createElement('a');
     linkButton.textContent = 'Google';
     linkButton.target = '_blank';
@@ -212,7 +211,7 @@ class MedDictHighlighter extends HTMLElement {
     };
     buttonsContainer.appendChild(linkButton);
 
-    // Modify the searchButton for Wikipedia search
+    // searchButton for Wikipedia search
     const searchButton = document.createElement('button');
     searchButton.textContent = 'Wikipedia';
     searchButton.classList.add('popup-box-link', 'search-button');  // Reuse the same class for similar styling
