@@ -60,7 +60,7 @@ export function styled({ display = "none", left = 0, top = 0 }) {
     
     .meaning-image {
         width: 100%; /* Adjust width to 100% of its container */
-        max-width: 250px; /* Maximum width of the image */
+        max-width: 200px; /* Maximum width of the image */
         max-height: 200px; /* Maximum height of the image */
         height: auto; /* Ensure height adjusts automatically */
         object-fit: contain; /* Maintain aspect ratio within given dimensions */

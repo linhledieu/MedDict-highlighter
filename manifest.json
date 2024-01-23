@@ -5,7 +5,7 @@
   "background": { "type": "module" },
   "web_accessible_resources": [
     {
-      "resources": ["dist/dynamic-module.js", "images/vinuni-icon.png", "images/sound.png", "images/404.png", "images/icon128.png", "images/icon48.png", "images/icon16.png"],
+      "resources": ["dist/dynamic-module.js", "images/vinuni-icon.png","images/suggestion.png", "images/sound.png", "images/404.png", "images/icon128.png", "images/icon48.png", "images/icon16.png"],
       "matches": ["<all_urls>"]
     }
   ],
