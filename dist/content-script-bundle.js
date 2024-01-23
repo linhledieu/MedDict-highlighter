@@ -478,17 +478,22 @@ class MedDictHighlighter extends HTMLElement {
     const buttonsContainer = document.createElement('div');
     buttonsContainer.style.display = 'flex'; // Ensure buttons are in-line
 
-    // Add the link button for MedDict
+    // Modify the linkButton for Google search
     const linkButton = document.createElement('a');
-    linkButton.href = 'https://meddict-vinuni.com/';
-    linkButton.textContent = 'MedDict';
+    linkButton.textContent = 'Google';
     linkButton.target = '_blank';
     linkButton.classList.add('popup-box-link');
+    linkButton.onclick = () => {
+      // Encode the highlighted word
+      const encodedWord = encodeURIComponent(word);
+      const googleUrl = `https://www.google.com/search?q=${encodedWord}`;
+      linkButton.href = googleUrl;
+    };
     buttonsContainer.appendChild(linkButton);
 
-    // Add the Wikipedia/Google search button
+    // Modify the searchButton for Wikipedia search
     const searchButton = document.createElement('button');
-    searchButton.textContent = 'Search';
+    searchButton.textContent = 'Wikipedia';
     searchButton.classList.add('popup-box-link', 'search-button'); // Reuse the same class for similar styling
     searchButton.onclick = () => {
       // Encode the highlighted word
@@ -501,7 +506,8 @@ class MedDictHighlighter extends HTMLElement {
       let wikiUrl;
       if (language === 'en') {
         // English language, use English Wikipedia
-        wikiUrl = `https://en.wikipedia.org/wiki/Special:Search?search=${encodedWord}`;
+        wikiUrl = `https://en.wikipedia.org/wiki/${encodedWord}`;
+        console.log(wikiUrl);
       } else if (language === 'vn') {
         // Vietnamese language, use Vietnamese Wikipedia
         wikiUrl = `https://vi.wikipedia.org/w/index.php?go=Go&search=${encodedWord}`;
@@ -509,23 +515,7 @@ class MedDictHighlighter extends HTMLElement {
         // Default to English Wikipedia if language is not determined
         wikiUrl = `https://en.wikipedia.org/wiki/Special:Search?search=${encodedWord}`;
       }
-
-      // Check if there is a Wikipedia page available for the word
-      fetch(wikiUrl).then(response => response.text()).then(text => {
-        // Check if the Wikipedia page contains the word they highlighted
-        if (text.includes(word)) {
-          // Wikipedia page found, open it
-          window.open(wikiUrl, '_blank');
-        } else {
-          // Wikipedia page not found, perform a Google search
-          const googleUrl = `https://www.google.com/search?q=${encodedWord}`;
-          window.open(googleUrl, '_blank');
-        }
-      }).catch(error => {
-        // Handle fetch error by defaulting to Google search
-        const googleUrl = `https://www.google.com/search?q=${encodedWord}`;
-        window.open(googleUrl, '_blank');
-      });
+      window.open(wikiUrl, '_blank');
     };
     buttonsContainer.appendChild(searchButton);
 
