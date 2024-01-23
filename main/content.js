@@ -31,6 +31,11 @@ document.addEventListener("selectionchange", () => {
   }
 });
 
+// Event listener to hide the marker on scroll
+window.addEventListener("scroll", () => {
+  setMarkerPosition({ display: "none" }); // Hide the marker when the user scrolls
+});
+
 // Function to calculate the marker position
 function getMarkerPosition() {
   const rangeBounds = window.getSelection().getRangeAt(0).getBoundingClientRect();
@@ -41,5 +46,3 @@ function getMarkerPosition() {
     display: "flex",
   };
 }
-
-
