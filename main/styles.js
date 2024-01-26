@@ -69,6 +69,7 @@ export function styled({ display = "none", left = 0, top = 0 }) {
     /* Header Title: Style for the main title in the header */
     .header-section h1 {
         font-size: 20px;
+        padding: 10px 20px;
         font-weight: bold;
         margin: 0;
         color: white;
@@ -100,8 +101,9 @@ export function styled({ display = "none", left = 0, top = 0 }) {
     /* Meaning List Items: Style for individual list items */
     .meanings-list li {
         font-size: 14px;
+        padding: 10px;
         line-height: 1.6;
-        padding: 10px 0;
+        padding: 10px 20px;
         color: white;
     } 
     
@@ -168,5 +170,10 @@ export function styled({ display = "none", left = 0, top = 0 }) {
     .sound-button:active {
         background-color: #990000FF;
     }
+
+    .blue-button {
+        background-color: #007bff ;
+        color: white; /* You can adjust text color as needed */
+      }
 `;
 }

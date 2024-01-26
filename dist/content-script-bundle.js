@@ -87,6 +87,7 @@ function styled({
     /* Header Title: Style for the main title in the header */
     .header-section h1 {
         font-size: 20px;
+        padding: 10px 20px;
         font-weight: bold;
         margin: 0;
         color: white;
@@ -118,8 +119,9 @@ function styled({
     /* Meaning List Items: Style for individual list items */
     .meanings-list li {
         font-size: 14px;
+        padding: 10px;
         line-height: 1.6;
-        padding: 10px 0;
+        padding: 10px 20px;
         color: white;
     } 
     
@@ -186,6 +188,11 @@ function styled({
     .sound-button:active {
         background-color: #990000FF;
     }
+
+    .blue-button {
+        background-color: #007bff ;
+        color: white; /* You can adjust text color as needed */
+      }
 `;
 }
 
@@ -485,7 +492,7 @@ class MedDictHighlighter extends HTMLElement {
   }
 
   // Method to create the popup box
-  createPopupBox(word, meanings, imageUrl, wordFound = true) {
+  createPopupBox(word, meanings, imageUrl, wordFound) {
     // Create the container for the pop-up box
     const popupBox = document.createElement('div');
     popupBox.classList.add('popup-box');
@@ -498,23 +505,35 @@ class MedDictHighlighter extends HTMLElement {
     headerSection.appendChild(wordHeader);
 
     // Create the button element for sound
-    const soundButton = document.createElement('button');
-    soundButton.className = 'sound-button'; // Apply the .sound-button class for styling
+    let soundButton = null;
+    let suggestButton = null;
+    if (wordFound) {
+      soundButton = document.createElement('button');
+      soundButton.className = 'sound-button'; // Apply the .sound-button class for styling
 
-    // Assuming that 'images/sound.png' is the path within your extension's directory
-    const iconUrl = chrome.runtime.getURL('images/sound.png');
+      // Assuming that 'images/sound.png' is the path within your extension's directory
+      const iconUrl = chrome.runtime.getURL('images/sound.png');
 
-    // Create an img element for the icon and append it to the button
-    const soundIcon = document.createElement('img');
-    soundIcon.src = iconUrl; // Set the image source
-    soundIcon.alt = 'Sound icon'; // Set alternative text for the image
-    soundIcon.className = 'sound-icon'; // Use .sound-icon class for styling
+      // Create an img element for the icon and append it to the button
+      const soundIcon = document.createElement('img');
+      soundIcon.src = iconUrl; // Set the image source
+      soundIcon.alt = 'Sound icon'; // Set alternative text for the image
+      soundIcon.className = 'sound-icon'; // Use .sound-icon class for styling
 
-    // Append the image icon to the button
-    soundButton.appendChild(soundIcon);
+      // Append the image icon to the button
+      soundButton.appendChild(soundIcon);
 
-    // Append the sound button to the header section
-    headerSection.appendChild(soundButton);
+      // Append the sound button to the header section
+      headerSection.appendChild(soundButton);
+    } else {
+      // Create the suggest button when word is not found
+      suggestButton = document.createElement('button');
+      suggestButton.textContent = 'Suggest';
+      suggestButton.className = 'suggest-button'; // Apply the .suggest-button class for styling
+      suggestButton.classList.add('popup-box-link', 'search-button');
+      // Append the suggest button to the header section
+      headerSection.appendChild(suggestButton);
+    }
 
     // Append the header section to the popup box
     popupBox.appendChild(headerSection);
@@ -583,12 +602,6 @@ class MedDictHighlighter extends HTMLElement {
 
     // Append buttons container to popup box
     popupBox.appendChild(buttonsContainer);
-
-    // Adjust visibility based on wordFound
-    if (!wordFound) {
-      soundButton.style.display = 'none'; // Hide sound button
-      imageUrl = chrome.runtime.getURL('images/404.png'); // Set default not found image
-    }
     return {
       popupBox,
       soundButton
@@ -596,7 +609,7 @@ class MedDictHighlighter extends HTMLElement {
   }
 
   // Method to show the popup box
-  showPopupBox(range, word, meanings, imageUrl) {
+  showPopupBox(range, word, meanings, imageUrl, wordFound) {
     // Remove any existing pop-up box
     const existingPopup = this.shadowRoot.querySelector('.popup-box');
     if (existingPopup) {
@@ -605,7 +618,7 @@ class MedDictHighlighter extends HTMLElement {
     const {
       popupBox,
       soundButton
-    } = this.createPopupBox(word, meanings, imageUrl);
+    } = this.createPopupBox(word, meanings, imageUrl, wordFound);
     this.shadowRoot.appendChild(popupBox);
     const rect = range.getBoundingClientRect();
     popupBox.style.position = 'absolute';
@@ -644,6 +657,27 @@ class MedDictHighlighter extends HTMLElement {
     }
     return "Not Found";
   }
+  handleSuggestButtonClick(searchWord, language) {
+    const payload = {
+      suggestion: searchWord,
+      lang: language
+    };
+    fetch('https://api.meddict-vinuni.com/words/suggestions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    }).then(response => response.json()).then(data => {
+      if (data.success) {
+        console.log('Suggestion successfully submitted:', data);
+      } else {
+        console.log(data);
+      }
+    }).catch(error => {
+      console.error('Network error:', error);
+    });
+  }
   highlightSelection() {
     const userSelection = window.getSelection();
     for (let i = 0; i < userSelection.rangeCount; i++) {
@@ -663,7 +697,7 @@ class MedDictHighlighter extends HTMLElement {
           const imgID = wordData["id"];
           const dictWord = wordData[language];
           let imageUrl = `https://api.meddict-vinuni.com/words/illustration/${imgID}`;
-          const soundButton = this.showPopupBox(range, dictWord, meanings, imageUrl);
+          const soundButton = this.showPopupBox(range, dictWord, meanings, imageUrl, true);
           soundButton.addEventListener('click', () => {
             const audio = new Audio(`https://api.meddict-vinuni.com/words/sound/${language}/${imgID}`);
             audio.play().catch(error => console.error('Error playing the sound:', error));
@@ -674,11 +708,25 @@ class MedDictHighlighter extends HTMLElement {
           let meanings = topWords.map(item => `${language === 'en' ? item.en : item.vn}: ${language === 'en' ? item.vn : item.en}`);
           const imageURL = chrome.runtime.getURL('images/suggestion.png');
           this.showPopupBox(range, search_word, meanings, imageURL, false);
+          // Add event listener to the suggestButton
+          const suggestButton = this.shadowRoot.querySelector('.suggest-button');
+          suggestButton.addEventListener('click', () => {
+            // Pass the appropriate values for search_word and language to the function
+            this.handleSuggestButtonClick(search_word, language);
+            suggestButton.classList.add('blue-button');
+          });
         } else {
           // Word not found
-          const meanings = ['If you want to contribute this word to our website, please click the link.'];
+          const meanings = ['If you want to contribute this word to our website, please click the button above.'];
           const imageURL = chrome.runtime.getURL('images/404.png');
           this.showPopupBox(range, search_word, meanings, imageURL, false);
+          // Add event listener to the suggestButton
+          const suggestButton = this.shadowRoot.querySelector('.suggest-button');
+          suggestButton.addEventListener('click', () => {
+            // Pass the appropriate values for search_word and language to the function
+            this.handleSuggestButtonClick(search_word, language);
+            suggestButton.classList.add('blue-button');
+          });
         }
       }).catch(error => {
         console.log('Fetch error:', error);
