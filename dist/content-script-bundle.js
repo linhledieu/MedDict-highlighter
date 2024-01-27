@@ -62,7 +62,7 @@ function styled({
         /* Positioning and size */
         position: absolute;
         z-index: 10000;
-        max-width: 300px; /* Adjusted maximum width */
+        max-width: 310px; /* Adjusted maximum width */
         width: 80%; /* Adjusted width to be 90% of the container */
         box-sizing: border-box; 
     }
@@ -119,9 +119,8 @@ function styled({
     /* Meaning List Items: Style for individual list items */
     .meanings-list li {
         font-size: 14px;
-        padding: 10px;
-        line-height: 1.6;
         padding: 10px 20px;
+        line-height: 1.6;
         color: white;
     } 
     
