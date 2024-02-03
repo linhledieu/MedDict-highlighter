@@ -2,21 +2,6 @@
 
 **MedDict** is a medical dictionary made by VinUnians for College of Health Sciences (CHS) students & faculties in VinUniversity. The dictionary is curated by Professor Huynh Dinh Chien, faculty of CHS at VinUniversity. 
 
-## 🔍 Table of contents 
-- [Medical Dictionary 🏥📖](#medical-dictionary-)
-  - [🔍 Table of contents](#-table-of-contents)
-  - [✨ Features](#-features)
-    - [For end-users](#for-end-users)
-  - [🧐 Usage](#-usage)
-    - [Search with the MedDict plugin](#search-with-the-meddict-plugin)
-  - [👨‍🔧 Installation](#-installation)
-    - [Setup](#setup)
-      - [MedDict Website](#meddict-website)
-    - [Installation of chrome extension](#installation-of-chrome-extension)
-  - [👩‍💻 Development](#-development)
-  - [📄 License](#-license)
-  - [🙏 Acknowledgement](#-acknowledgement)
-
 ## ✨ Features
 
 ### For end-users
