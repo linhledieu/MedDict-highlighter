@@ -508,16 +508,16 @@ class MedDictHighlighter extends HTMLElement {
     let suggestButton = null;
     if (wordFound) {
       soundButton = document.createElement('button');
-      soundButton.className = 'sound-button'; // Apply the .sound-button class for styling
+      soundButton.className = 'sound-button';
 
       // Assuming that 'images/sound.png' is the path within your extension's directory
       const iconUrl = chrome.runtime.getURL('images/sound.png');
 
       // Create an img element for the icon and append it to the button
       const soundIcon = document.createElement('img');
-      soundIcon.src = iconUrl; // Set the image source
+      soundIcon.src = iconUrl;
       soundIcon.alt = 'Sound icon'; // Set alternative text for the image
-      soundIcon.className = 'sound-icon'; // Use .sound-icon class for styling
+      soundIcon.className = 'sound-icon';
 
       // Append the image icon to the button
       soundButton.appendChild(soundIcon);
